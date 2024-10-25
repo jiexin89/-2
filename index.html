@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Window Sync Tool</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    .window-list {
+      margin: 20px 0;
+    }
+    .controls {
+      margin-bottom: 20px;
+    }
+    button {
+      padding: 8px 16px;
+      margin-right: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Window Sync Tool</h1>
+  
+  <div class="controls">
+    <button onclick="refreshWindows()">Refresh Windows</button>
+    <button onclick="startSync()">Start Sync</button>
+    <button onclick="stopSync()">Stop Sync</button>
+  </div>
+
+  <div class="window-list" id="windowList">
+  </div>
+
+  <script>
+    const { ipcRenderer } = require('electron');
+
+    function refreshWindows() {
+      ipcRenderer.send('get-windows');
+    }
+
+    function startSync() {
+      ipcRenderer.send('start-sync');
+    }
+
+    function stopSync() {
+      ipcRenderer.send('stop-sync');
+    }
+
+    ipcRenderer.on('window-list', (event, windows) => {
+      const list = document.getElementById('windowList');
+      list.innerHTML = windows.map(w => `
+        <div>
+          <input type="checkbox" id="window-${w.id}">
+          <label for="window-${w.id}">${w.title}</label>
+        </div>
+      `).join('');
+    });
+
+    // Initial window list
+    refreshWindows();
+  </script>
+</body>
+</html>
